@@ -4,7 +4,7 @@
 
 **Question the agent answers:** *What does this cost us, and what do we submit?*
 
-This agent is the one place in the system where the "LLM extracts, deterministic code computes" rule (§3.3 of [TENDER_ASSISTANT.md](../TENDER_ASSISTANT.md)) is load-bearing rather than a nice-to-have. **The agent must never be asked "what should we bid?" and hand back a number.** It extracts structured cost records from the tender package; a separate, unit-tested pricing engine turns those records into a price; the agent's only job afterward is to narrate what the engine computed. If an implementation collapses these into one LLM call that "estimates the bid," it has violated the core design principle of the whole project — treat that as a build defect, not a shortcut.
+This agent is the one place in the system where the "LLM extracts, deterministic code computes" rule (§3.3 of [TENDER_ASSISTANT.md](../../TENDER_ASSISTANT.md)) is load-bearing rather than a nice-to-have. **The agent must never be asked "what should we bid?" and hand back a number.** It extracts structured cost records from the tender package; a separate, unit-tested pricing engine turns those records into a price; the agent's only job afterward is to narrate what the engine computed. If an implementation collapses these into one LLM call that "estimates the bid," it has violated the core design principle of the whole project — treat that as a build defect, not a shortcut.
 
 ## Pipeline
 
@@ -107,8 +107,15 @@ Two outputs: the extraction record that feeds the pricing engine, and the post-p
   "schema_version": "1.0",
   "stage": "explanation",
   "cost_breakdown": {
+    "material_gbp": 12400000,
+    "labor_gbp": 9800000,
+    "equipment_gbp": 4100000,
+    "subcontracting_gbp": 3200000,
+    "logistics_gbp": 900000,
+    "site_costs_gbp": 800000,
     "direct_cost_gbp": 31200000,
-    "indirects_gbp": 2400000,
+    "direct_overhead_gbp": 1200000,
+    "allocated_indirect_overhead_gbp": 380000,
     "overhead_gbp": 1580000,
     "contingency_gbp": 2860000,
     "contingency_pct_applied": 8.5,
@@ -132,7 +139,11 @@ Two outputs: the extraction record that feeds the pricing engine, and the post-p
 }
 ```
 
-`contingency_pct_applied` and `margin_pct_applied` are echoed from the risk agent's output for traceability — this agent reports them, it does not set them.
+`contingency_pct_applied` and `margin_pct_applied` are echoed from the risk agent's output for traceability — this agent reports them, it does not set them. Direct cost is broken out by category (material, labor, equipment, subcontracting, logistics, site costs) rather than reported as a single figure, and overhead is split into direct overhead (specific to this contract) vs. allocated indirect overhead (this contract's share of company-wide fixed cost) — this granularity, per the [Architecture Specification](../TenderMind_Agents_Specification.pdf) (§6), is what lets `cost_drivers[]` point at a specific category rather than an undifferentiated total.
+
+## Cross-agent conflicts
+
+The pricing engine's inputs don't only come from this agent's own extraction — quantities and durations it prices against can conflict with what the technical/civil agent independently expects from the drawings (e.g. technical requires three cranes for 12 months, but the BOQ this agent extracted only includes two cranes for eight months). Per the Architecture Specification (§6): **this must become a conflict routed to the bid manager, not a silent correction.** This agent should never resolve such a mismatch by quietly picking one figure over the other — it flags the discrepancy and lets [bid-manager.md](bid-manager.md) own reconciling it.
 
 ## Confidence & unknowns
 
@@ -145,3 +156,4 @@ Every extracted line item, provisional sum, and term carries its own `confidence
 - Never fill an unquantified line item with an assumed quantity — extract it as `quantity_stated: false` and let a human resolve it.
 - Never output a line item, provisional sum, or term without a `citation`. An unsourced finding is dropped at validation (§3.2).
 - Never treat a provisional sum as an opportunity to estimate the underlying scope in more detail than the tender documents themselves support.
+- Never silently reconcile a quantity or duration mismatch against another agent's finding — raise it as a conflict (see [Cross-agent conflicts](#cross-agent-conflicts)).

@@ -4,7 +4,7 @@
 
 **Question the agent answers:** *Are there contractual terms that make this tender dangerous or unacceptable to sign?*
 
-This agent does not give legal advice and does not decide whether to bid. It reads the tender package as a lawyer doing first-pass contract review would, extracts every clause that creates risk or obligation, and flags what needs human counsel before submission. Per [TENDER_ASSISTANT.md](../TENDER_ASSISTANT.md) §3.3, it extracts and classifies — it never computes a number or makes the go/no-go call itself.
+This agent does not give legal advice and does not decide whether to bid. It reads the tender package as a lawyer doing first-pass contract review would, extracts every clause that creates risk or obligation, and flags what needs human counsel before submission. Per [TENDER_ASSISTANT.md](../../TENDER_ASSISTANT.md) §3.3, it extracts and classifies — it never computes a number or makes the go/no-go call itself.
 
 ## Scope — documents this agent reads
 
@@ -65,6 +65,9 @@ Organized by category. This is deliberately broader than a first pass would need
 
 ### 8. Compliance & eligibility to bid
 - Licensing, registration, and professional accreditation prerequisites
+- Local registration and domestic content requirements (common on public and international tenders — a minimum percentage of local labor, material, or subcontracting)
+- Joint-venture or consortium requirements — whether the tender mandates a local JV partner, and what qualification burden that places on the JV as a whole vs. the bidder alone
+- Blacklisting / debarment declarations — confirm the tender's required declaration is one the bidder can truthfully sign, and flag if the declaration format itself creates exposure (e.g. overly broad "no dispute with any government entity" wording)
 - Anti-bribery/corruption clauses and sanctions compliance requirements
 - Modern slavery / labor compliance representations
 - Conflict-of-interest and collusive-bidding restrictions in the instructions to tenderers
@@ -93,6 +96,20 @@ Organized by category. This is deliberately broader than a first pass would need
 
 A finding of `critical` or `high` on any clause in categories 2, 3, or 6 should populate `blocking_issues[]` by default — these are the categories most likely to create unbounded exposure or forfeit a claim entitlement through a missed deadline.
 
+## Automatic critical flags
+
+Per the [Architecture Specification](../TenderMind_Agents_Specification.pdf) (§8), certain findings are always `critical` regardless of surrounding context, and should be pattern-matchable rather than left to case-by-case judgment:
+
+- `UNLIMITED_LIABILITY`
+- `UNLIMITED_INDEMNITY`
+- `MANDATORY_REQUIREMENT_NOT_MET`
+- `UNACCEPTABLE_JURISDICTION`
+- `MISSING_LICENSE`
+- `JOINT_VENTURE_REQUIREMENT`
+- `BLACKLISTING_DECLARATION_ISSUE`
+
+Any finding tagged with one of these flags automatically populates `blocking_issues[]` and is escalated to the risk agent and the bid manager (see [risk.md](risk.md), [bid-manager.md](bid-manager.md)) regardless of the confidence score attached to it — low confidence on a critical flag means "verify urgently," not "downgrade the severity."
+
 ## Output schema
 
 ```json
@@ -105,12 +122,16 @@ A finding of `critical` or `high` on any clause in categories 2, 3, or 6 should 
       "id": "LGL-004",
       "category": "damages_liability",
       "clause_type": "liquidated_damages",
+      "critical_flag": "UNLIMITED_LIABILITY",
       "severity": "critical",
       "summary": "LDs assessed at 0.5%/day with no stated cap.",
       "why_it_matters": "Uncapped LDs create unbounded downside on a schedule-risky scope.",
+      "legal_exposure": "Unbounded — no contractual ceiling on delay damages.",
+      "company_position": "Standard company policy requires an LD cap of 10% of contract value or less.",
       "citation": { "document_id": "doc_3", "page": 42, "excerpt": "..." },
       "confidence": 0.88,
-      "recommended_action": "escalate_to_counsel"
+      "recommended_action": "escalate_to_counsel",
+      "requires_external_counsel": true
     }
   ],
   "unknowns": [
@@ -128,7 +149,7 @@ A finding of `critical` or `high` on any clause in categories 2, 3, or 6 should 
 
 ## Jurisdiction handling
 
-The checklist above assumes common-law construction contract conventions (UK/Commonwealth/US-style). Clause names, statutory rights (e.g. adjudication), and what's enforceable vary by jurisdiction — this blocks precise tuning per [TENDER_ASSISTANT.md](../TENDER_ASSISTANT.md) Open Question #7. Until a target jurisdiction is fixed:
+The checklist above assumes common-law construction contract conventions (UK/Commonwealth/US-style). Clause names, statutory rights (e.g. adjudication), and what's enforceable vary by jurisdiction — this blocks precise tuning per [TENDER_ASSISTANT.md](../../TENDER_ASSISTANT.md) Open Question #7. Until a target jurisdiction is fixed:
 
 - The agent should state `jurisdiction_assumed` in every output and flag when the governing-law clause names a different jurisdiction than assumed.
 - Findings should avoid asserting enforceability ("this clause is void") and instead flag for counsel ("this clause purports to X — confirm enforceability in the stated governing law").

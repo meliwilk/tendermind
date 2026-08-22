@@ -4,7 +4,7 @@
 
 **Question the agent answers:** *Can we actually build this, with our people and equipment, in the stated time?*
 
-This agent reads the tender the way a senior estimator/construction manager would during a constructability review: hunting for the gap between what the documents assume and what building the project actually requires. Per [TENDER_ASSISTANT.md](../TENDER_ASSISTANT.md) §3.3, it extracts and assesses — it does not price anything (that's the accounting agent) and it does not decide go/no-go (that's the risk agent). Its most valuable output is often not a risk flag at all but a well-formed question back to the owner (§5.2): ambiguity caught before the bid is a free RFI; caught after award, it's a claim or a loss.
+This agent reads the tender the way a senior estimator/construction manager would during a constructability review: hunting for the gap between what the documents assume and what building the project actually requires. Per [TENDER_ASSISTANT.md](../../TENDER_ASSISTANT.md) §3.3, it extracts and assesses — it does not price anything (that's the accounting agent) and it does not decide go/no-go (that's the risk agent). Its most valuable output is often not a risk flag at all but a well-formed question back to the owner (§5.2): ambiguity caught before the bid is a free RFI; caught after award, it's a claim or a loss.
 
 ## Scope — documents this agent reads
 
@@ -135,3 +135,4 @@ Any `critical` finding, or three or more `high` findings concentrated in one cat
 - Never output a finding without a `citation` into the tender package itself. An unsourced finding is dropped at validation (§3.2).
 - Never fold cost consequence into a technical finding — describe the technical fact and let the accounting agent price it (§3.3: the LLM extracts, deterministic code computes).
 - Never suppress an `information_requests[]` entry because the answer seems "probably fine" — an RFI is cheap before the bid and expensive after.
+- Never invent equipment ownership or certifications the bidder doesn't demonstrably hold — a capability claim needs the same evidentiary basis as any other finding (per the [Architecture Specification](../TenderMind_Agents_Specification.pdf) §4).
