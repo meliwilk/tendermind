@@ -116,7 +116,7 @@ notes:
 
 ## Company Memory layer and Match Engine
 
-Company Memory is a persistent intelligence layer underneath every tender-specific agent — populated via the "Add Company Knowledge" flow (see [frontend/src/components/AddCompanyKnowledgeDrawer](../../frontend/src/components/AddCompanyKnowledgeDrawer)), not rebuilt per tender.
+Company Memory is a persistent intelligence layer underneath every tender-specific agent — populated via the "Add Company Knowledge" flow (see [frontend/src/components/AddCompanyKnowledgeDrawer](../../frontend/src/components/AddCompanyKnowledgeDrawer)), not rebuilt per tender. This section defines the logical schema; for how it's actually persisted before the real database exists (ingestion diff handling, coverage scoring, the Bid History Store, and the temporary storage contract), see [memory.md](../../memory.md).
 
 ```yaml
 company:
