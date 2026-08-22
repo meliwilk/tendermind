@@ -1,0 +1,65 @@
+:root {
+  --tm-bg: #f3f0e8;
+  --tm-panel: #f7f5ef;
+  --tm-ink: #171714;
+  --tm-ink-05: rgba(23, 23, 20, 0.05);
+  --tm-ink-09: rgba(23, 23, 20, 0.09);
+  --tm-ink-12: rgba(23, 23, 20, 0.12);
+  --tm-ink-14: rgba(23, 23, 20, 0.14);
+  --tm-ink-20: rgba(23, 23, 20, 0.2);
+  --tm-ink-24: rgba(23, 23, 20, 0.24);
+  --tm-ink-45: rgba(23, 23, 20, 0.45);
+  --tm-ink-55: rgba(23, 23, 20, 0.55);
+  --tm-ink-60: rgba(23, 23, 20, 0.6);
+  --tm-ink-70: rgba(23, 23, 20, 0.7);
+  --tm-cream: #f3f0e8;
+  --tm-accent: #c4512d;
+  --tm-good: #4a6b3f;
+  --tm-warn: #b98a2e;
+  --tm-bad: #b3341c;
+  --tm-font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --tm-font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--tm-bg);
+  color: var(--tm-ink);
+  font-family: var(--tm-font-sans);
+}
+
+@keyframes tmDrawerIn {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes tmModalIn {
+  from {
+    transform: translateY(6px) scale(0.99);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tmPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}

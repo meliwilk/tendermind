@@ -1,0 +1,290 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 23, 20, 0.32);
+  z-index: 60;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.overlayDismiss {
+  flex: 1;
+}
+
+.panel {
+  width: 520px;
+  max-width: 100%;
+  background: var(--tm-bg);
+  height: 100%;
+  overflow-y: auto;
+  border-left: 1px solid var(--tm-ink-20);
+  animation: tmDrawerIn 0.22s ease-out;
+  padding: 26px 30px 60px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.closeButton {
+  font-size: 16px;
+  color: var(--tm-ink-45);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.dropzone {
+  margin-top: 22px;
+  border: 1px dashed var(--tm-ink-24);
+  padding: 28px 20px;
+  text-align: center;
+  background: var(--tm-panel);
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropzone:hover,
+.dropzoneActive {
+  border-color: var(--tm-ink);
+}
+
+.dropzoneTitle {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.dropzoneHint {
+  font-size: 11.5px;
+  color: var(--tm-ink-55);
+  margin-top: 6px;
+  font-family: var(--tm-font-mono);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.connectorRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.connectorButton {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  padding: 9px 8px;
+  border: 1px solid var(--tm-ink-24);
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+  color: var(--tm-ink);
+}
+
+.connectorButton:hover {
+  border-color: var(--tm-ink);
+}
+
+.sectionLabel {
+  margin-top: 26px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.docTypeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.docTypeChip {
+  font-size: 12px;
+  padding: 6px 11px;
+  border: 1px solid var(--tm-ink-20);
+  background: transparent;
+  color: var(--tm-ink-70);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.docTypeChipActive {
+  border-color: var(--tm-ink);
+  background: var(--tm-ink);
+  color: var(--tm-bg);
+}
+
+.fileList {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ingestCard {
+  border: 1px solid var(--tm-ink-14);
+  background: var(--tm-panel);
+  padding: 18px 20px;
+}
+
+.ingestHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.ingestFileName {
+  font-size: 12.5px;
+  font-family: var(--tm-font-mono);
+}
+
+.ingestFileSize {
+  font-size: 11px;
+  color: var(--tm-ink-55);
+  font-family: var(--tm-font-mono);
+}
+
+.ingestSteps {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ingestStep {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 10px;
+  font-size: 12.5px;
+  align-items: baseline;
+}
+
+.ingestStepTick {
+  font-family: var(--tm-font-mono);
+  font-size: 11px;
+}
+
+.ingestStepTickPending {
+  color: var(--tm-ink-45);
+}
+
+.ingestStepTickActive {
+  color: var(--tm-accent);
+  animation: tmPulse 1.4s infinite;
+}
+
+.ingestStepTickDone {
+  color: var(--tm-good);
+}
+
+.ingestStepLabelPending,
+.ingestStepLabelActive {
+  color: var(--tm-ink);
+}
+
+.ingestStepLabelDone {
+  color: var(--tm-ink-45);
+}
+
+.ingestSummaryGrid {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--tm-ink-12);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ingestStat {
+  font-family: var(--tm-font-mono);
+  font-size: 18px;
+}
+
+.ingestStatBad {
+  color: var(--tm-bad);
+}
+
+.ingestStatLabel {
+  font-size: 11px;
+  color: var(--tm-ink-55);
+  margin-top: 2px;
+}
+
+.contradiction {
+  margin-top: 20px;
+  border-left: 2px solid var(--tm-accent);
+  padding: 2px 0 2px 16px;
+}
+
+.contradictionHeadline {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.contradictionSources {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 12.5px;
+}
+
+.contradictionSourceRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contradictionSourceLabel {
+  color: var(--tm-ink-70);
+}
+
+.contradictionSourceValue {
+  font-family: var(--tm-font-mono);
+}
+
+.contradictionActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.contradictionPrimary {
+  font-size: 12px;
+  padding: 8px 12px;
+  background: var(--tm-ink);
+  color: var(--tm-bg);
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.contradictionPrimary:hover {
+  background: var(--tm-accent);
+}
+
+.contradictionSecondary {
+  font-size: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--tm-ink-24);
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+  color: var(--tm-ink);
+}
+
+.contradictionSecondary:hover {
+  border-color: var(--tm-ink);
+}
