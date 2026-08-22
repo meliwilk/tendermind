@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddCompanyKnowledgeDrawer } from "./components/AddCompanyKnowledgeDrawer/AddCompanyKnowledgeDrawer";
 import { NewTenderModal } from "./components/NewTenderModal/NewTenderModal";
+import { getCoverage, ingestDocument } from "./api/memoryClient";
+import { analyzeTender, type TenderAnalysisResult } from "./api/tenderClient";
 import type {
   CompanyMemoryDocType,
   Contradiction,
@@ -10,17 +12,6 @@ import type {
 import styles from "./App.module.css";
 
 type DrawerKind = "knowledge" | "newtender" | null;
-
-const COMPANY_MEMORY_STATS = {
-  factCount: 2841,
-  documentCount: 147,
-  typicalRunLabel: "Typical run 6–9 minutes",
-};
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 export default function App() {
   const [openDrawer, setOpenDrawer] = useState<DrawerKind>(null);
@@ -35,36 +26,49 @@ export default function App() {
     owner: "",
     documents: [],
   });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [analyzeResult, setAnalyzeResult] = useState<TenderAnalysisResult | null>(null);
+
+  const [companyMemoryStats, setCompanyMemoryStats] = useState({
+    factCount: 0,
+    documentCount: 0,
+    typicalRunLabel: "Typical run 6–9 minutes",
+  });
+
+  useEffect(() => {
+    getCoverage()
+      .then((coverage) =>
+        setCompanyMemoryStats((prev) => ({
+          ...prev,
+          factCount: coverage.factCount,
+          documentCount: coverage.documentCount,
+        })),
+      )
+      .catch((err) => console.error("Failed to load Company Memory coverage:", err));
+  }, []);
 
   const closeDrawer = () => setOpenDrawer(null);
 
-  const handleKnowledgeFilesSelected = (files: File[]) => {
+  const handleKnowledgeFilesSelected = async (files: File[]) => {
     const [first] = files;
     if (!first) return;
-    setIngestSummary({
-      fileName: first.name,
-      fileSizeLabel: formatFileSize(first.size),
-      steps: [
-        { label: "Reading document", status: "done" },
-        { label: "Extracting commitments", status: "done" },
-        { label: "Cross-checking existing company memory", status: "done" },
-      ],
-      newFacts: 31,
-      updatedFacts: 6,
-      contradictions: 2,
-    });
-    setContradiction({
-      headline: "Payment terms appear inconsistent.",
-      sources: [
-        { label: "2025 Commercial Policy", value: "maximum 45 days" },
-        { label: "2026 Standard Terms", value: "maximum 60 days" },
-      ],
-      onUseSource: (source) => {
-        console.log("Use source:", source);
-        setContradiction(null);
-      },
-      onReviewSources: () => console.log("Review sources"),
-    });
+    try {
+      const { summary, contradiction: newContradiction } = await ingestDocument(
+        first,
+        selectedDocType,
+      );
+      setIngestSummary(summary);
+      setContradiction(newContradiction);
+      const coverage = await getCoverage();
+      setCompanyMemoryStats((prev) => ({
+        ...prev,
+        factCount: coverage.factCount,
+        documentCount: coverage.documentCount,
+      }));
+    } catch (err) {
+      console.error("Ingestion failed:", err);
+    }
   };
 
   const handleTenderFilesSelected = (files: File[]) => {
@@ -72,7 +76,11 @@ export default function App() {
       ...prev,
       documents: [
         ...prev.documents,
-        ...files.map((file) => ({ name: file.name, meta: formatFileSize(file.size) })),
+        ...files.map((file) => ({
+          name: file.name,
+          meta: `${Math.max(1, Math.round(file.size / 1024))} KB`,
+          file,
+        })),
       ],
     }));
   };
@@ -84,9 +92,23 @@ export default function App() {
     }));
   };
 
-  const handleAnalyze = () => {
-    console.log("Analyzing tender:", tenderForm);
-    closeDrawer();
+  const openNewTender = () => {
+    setAnalyzeError(null);
+    setAnalyzeResult(null);
+    setOpenDrawer("newtender");
+  };
+
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true);
+    setAnalyzeError(null);
+    try {
+      const result = await analyzeTender(tenderForm);
+      setAnalyzeResult(result);
+    } catch (err) {
+      setAnalyzeError(err instanceof Error ? err.message : "Tender analysis failed");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -99,11 +121,7 @@ export default function App() {
         >
           + Add company knowledge
         </button>
-        <button
-          type="button"
-          className={styles.primaryButton}
-          onClick={() => setOpenDrawer("newtender")}
-        >
+        <button type="button" className={styles.primaryButton} onClick={openNewTender}>
           Analyze new tender
         </button>
       </div>
@@ -130,8 +148,11 @@ export default function App() {
         onOwnerChange={(owner) => setTenderForm((prev) => ({ ...prev, owner }))}
         onFilesSelected={handleTenderFilesSelected}
         onRemoveDocument={handleRemoveDocument}
-        companyMemoryStats={COMPANY_MEMORY_STATS}
+        companyMemoryStats={companyMemoryStats}
         onAnalyze={handleAnalyze}
+        isAnalyzing={isAnalyzing}
+        analyzeError={analyzeError}
+        analyzeResult={analyzeResult}
       />
     </div>
   );

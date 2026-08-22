@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+.env
+
+data/company_memory.json
+data/contradictions/*.json
+data/bid_history/*.json
+data/tenders/*.json
+!data/contradictions/.gitkeep
+!data/bid_history/.gitkeep
+!data/tenders/.gitkeep

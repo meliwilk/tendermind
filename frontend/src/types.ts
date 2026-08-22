@@ -50,6 +50,7 @@ export interface Contradiction {
 export interface TenderDocumentRef {
   name: string;
   meta: string;
+  file: File;
 }
 
 export interface NewTenderFormValues {

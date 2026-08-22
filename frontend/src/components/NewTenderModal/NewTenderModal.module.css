@@ -178,3 +178,47 @@
   color: var(--tm-ink-55);
   line-height: 1.5;
 }
+
+.errorPanel {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(179, 38, 30, 0.35);
+  background: rgba(179, 38, 30, 0.06);
+  color: #b3261e;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.resultPanel {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--tm-ink-20);
+  background: var(--tm-panel);
+}
+
+.resultHeadline {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.resultMeta {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--tm-ink-55);
+  font-family: var(--tm-font-mono);
+}
+
+.doneButton {
+  margin-top: 12px;
+  background: none;
+  border: 1px solid var(--tm-ink-28, rgba(23, 23, 20, 0.28));
+  padding: 8px 14px;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--tm-ink);
+}
+
+.doneButton:hover {
+  background: var(--tm-ink-09);
+}

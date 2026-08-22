@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { ChangeEvent } from "react";
 import type { CompanyMemoryStats, NewTenderFormValues } from "../../types";
+import type { TenderAnalysisResult } from "../../api/tenderClient";
 import styles from "./NewTenderModal.module.css";
 
 export interface NewTenderModalProps {
@@ -14,6 +15,9 @@ export interface NewTenderModalProps {
   onRemoveDocument: (index: number) => void;
   companyMemoryStats: CompanyMemoryStats;
   onAnalyze: () => void;
+  isAnalyzing: boolean;
+  analyzeError: string | null;
+  analyzeResult: TenderAnalysisResult | null;
 }
 
 export function NewTenderModal({
@@ -27,6 +31,9 @@ export function NewTenderModal({
   onRemoveDocument,
   companyMemoryStats,
   onAnalyze,
+  isAnalyzing,
+  analyzeError,
+  analyzeResult,
 }: NewTenderModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +54,7 @@ export function NewTenderModal({
     event.target.value = "";
   };
 
-  const canAnalyze = values.name.trim().length > 0 && values.documents.length > 0;
+  const canAnalyze = values.name.trim().length > 0 && values.documents.length > 0 && !isAnalyzing;
 
   return (
     <div className={styles.overlay}>
@@ -140,7 +147,7 @@ export function NewTenderModal({
             onClick={onAnalyze}
             disabled={!canAnalyze}
           >
-            Analyze against Company Memory
+            {isAnalyzing ? "Analyzing…" : "Analyze against Company Memory"}
           </button>
           <div className={styles.footerMeta}>
             {companyMemoryStats.factCount.toLocaleString()} facts ·{" "}
@@ -149,6 +156,31 @@ export function NewTenderModal({
             {companyMemoryStats.typicalRunLabel}
           </div>
         </div>
+
+        {analyzeError && (
+          <div className={styles.errorPanel}>
+            Extraction failed: {analyzeError}
+          </div>
+        )}
+
+        {analyzeResult && (
+          <div className={styles.resultPanel}>
+            <div className={styles.resultHeadline}>
+              Extraction complete — {analyzeResult.requirementCount} requirement
+              {analyzeResult.requirementCount === 1 ? "" : "s"} found
+            </div>
+            <div className={styles.resultMeta}>
+              {analyzeResult.clarificationQuestionCount} clarification question
+              {analyzeResult.clarificationQuestionCount === 1 ? "" : "s"} ·{" "}
+              {analyzeResult.unknownCount} unknown{analyzeResult.unknownCount === 1 ? "" : "s"} ·{" "}
+              engine: {analyzeResult.engine}
+              {analyzeResult.engine === "stub" && " (no ANTHROPIC_API_KEY set — heuristic only)"}
+            </div>
+            <button type="button" className={styles.doneButton} onClick={onClose}>
+              Done
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
